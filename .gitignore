@@ -1,0 +1,32 @@
+# Flutter / Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+build/
+
+# Android Signing Secrets (CRITICAL)
+android/key.properties
+android/app/*.jks
+android/app/*.keystore
+*.jks
+*.keystore
+key.properties
+secrets.properties
+
+# Android build outputs & local config
+android/local.properties
+android/.gradle/
+android/app/build/
+android/app/src/main/res/raw/
+
+# Symbols & Crash reports
+*.symbols
+*.ap_
+
+# IDE & Editor files
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
