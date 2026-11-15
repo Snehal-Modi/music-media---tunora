@@ -12,7 +12,7 @@ import 'local_library.dart';
 import 'sources/music_source.dart';
 import 'storage.dart';
 
-enum RepeatMode { off, all, one }
+enum PlaybackRepeatMode { off, all, one }
 
 /// Lets the handler browse the library for Android Auto without depending on UI state.
 class BrowseDelegate {
@@ -47,7 +47,7 @@ class TunoraAudioHandler extends BaseAudioHandler with SeekHandler {
   final ValueNotifier<List<Track>> queueTracks = ValueNotifier(const []);
   final ValueNotifier<int> index = ValueNotifier(0);
   final ValueNotifier<bool> shuffle = ValueNotifier(false);
-  final ValueNotifier<RepeatMode> repeat = ValueNotifier(RepeatMode.off);
+  final ValueNotifier<PlaybackRepeatMode> repeat = ValueNotifier(PlaybackRepeatMode.off);
   final ValueNotifier<Duration?> sleepLeft = ValueNotifier(null);
   final ValueNotifier<bool> sleepAtEnd = ValueNotifier(false);
   final ValueNotifier<String?> lastError = ValueNotifier(null);
@@ -177,7 +177,7 @@ class TunoraAudioHandler extends BaseAudioHandler with SeekHandler {
       index.value = i;
       shuffle.value = store.getBool('queueShuffle') ?? false;
       final rep = store.getString('queueRepeat');
-      repeat.value = RepeatMode.values.firstWhere((r) => r.name == rep, orElse: () => RepeatMode.off);
+      repeat.value = PlaybackRepeatMode.values.firstWhere((r) => r.name == rep, orElse: () => PlaybackRepeatMode.off);
       final pos = store.getInt('queuePos') ?? 0;
       final t = tracks[i];
       _resumeAt = (pos > 2000 && !t.isLive) ? Duration(milliseconds: pos) : null;
@@ -216,9 +216,9 @@ class TunoraAudioHandler extends BaseAudioHandler with SeekHandler {
       bufferedPosition: player.bufferedPosition,
       speed: player.speed,
       queueIndex: index.value,
-      repeatMode: repeat.value == RepeatMode.off
+      repeatMode: repeat.value == PlaybackRepeatMode.off
           ? AudioServiceRepeatMode.none
-          : repeat.value == RepeatMode.one
+          : repeat.value == PlaybackRepeatMode.one
               ? AudioServiceRepeatMode.one
               : AudioServiceRepeatMode.all,
       shuffleMode: shuffle.value ? AudioServiceShuffleMode.all : AudioServiceShuffleMode.none,
@@ -238,7 +238,7 @@ class TunoraAudioHandler extends BaseAudioHandler with SeekHandler {
     if (_queue.isEmpty) return null;
     final i = index.value + 1;
     if (i < _queue.length) return _queue[i];
-    return repeat.value == RepeatMode.all ? _queue.first : null;
+    return repeat.value == PlaybackRepeatMode.all ? _queue.first : null;
   }
 
   // ---------------------------------------------------------------- loading
@@ -394,7 +394,7 @@ class TunoraAudioHandler extends BaseAudioHandler with SeekHandler {
         await player.seek(Duration.zero);
         return;
       }
-      if (repeat.value == RepeatMode.one) {
+      if (repeat.value == PlaybackRepeatMode.one) {
         await player.seek(Duration.zero);
         player.play();
         return;
@@ -413,7 +413,7 @@ class TunoraAudioHandler extends BaseAudioHandler with SeekHandler {
     if (index.value + 1 >= _queue.length && filling != null) await filling;
     var i = index.value + 1;
     if (i >= _queue.length) {
-      if (repeat.value == RepeatMode.all || !auto) {
+      if (repeat.value == PlaybackRepeatMode.all || !auto) {
         i = 0;
       } else {
         await player.pause();
@@ -561,14 +561,14 @@ class TunoraAudioHandler extends BaseAudioHandler with SeekHandler {
 
   Future<void> cycleRepeat() async {
     switch (repeat.value) {
-      case RepeatMode.off:
-        repeat.value = RepeatMode.all;
+      case PlaybackRepeatMode.off:
+        repeat.value = PlaybackRepeatMode.all;
         break;
-      case RepeatMode.all:
-        repeat.value = RepeatMode.one;
+      case PlaybackRepeatMode.all:
+        repeat.value = PlaybackRepeatMode.one;
         break;
-      case RepeatMode.one:
-        repeat.value = RepeatMode.off;
+      case PlaybackRepeatMode.one:
+        repeat.value = PlaybackRepeatMode.off;
         break;
     }
     store.setString('queueRepeat', repeat.value.name);
@@ -681,10 +681,10 @@ class TunoraAudioHandler extends BaseAudioHandler with SeekHandler {
   @override
   Future<void> setRepeatMode(AudioServiceRepeatMode repeatMode) async {
     repeat.value = repeatMode == AudioServiceRepeatMode.none
-        ? RepeatMode.off
+        ? PlaybackRepeatMode.off
         : repeatMode == AudioServiceRepeatMode.one
-            ? RepeatMode.one
-            : RepeatMode.all;
+            ? PlaybackRepeatMode.one
+            : PlaybackRepeatMode.all;
     store.setString('queueRepeat', repeat.value.name);
     _broadcast(player.playbackEvent);
   }

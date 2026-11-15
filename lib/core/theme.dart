@@ -66,7 +66,7 @@ ThemeData buildTheme(Color accent) {
       elevation: 0,
       showDragHandle: false,
     ),
-    dialogTheme: DialogTheme(
+    dialogTheme: DialogThemeData(
       backgroundColor: const Color(0xFF181826),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
     ),
@@ -84,7 +84,7 @@ ThemeData buildTheme(Color accent) {
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
     ),
     listTileTheme: const ListTileThemeData(iconColor: Colors.white70, textColor: Colors.white),
-    tabBarTheme: TabBarTheme(
+    tabBarTheme: TabBarThemeData(
       labelColor: Colors.white,
       unselectedLabelColor: Colors.white.withOpacity(0.5),
       indicatorColor: accent,

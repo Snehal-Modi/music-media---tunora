@@ -228,12 +228,12 @@ class _MainColumn extends StatelessWidget {
                 },
               ),
               GlassIconButton(icon: Icons.skip_next_rounded, onPressed: handler.skipToNext, size: 56, iconSize: 32),
-              ValueListenableBuilder<RepeatMode>(
+              ValueListenableBuilder<PlaybackRepeatMode>(
                 valueListenable: handler.repeat,
                 builder: (c, r, _) => IconButton(
                   iconSize: 24,
-                  icon: Icon(r == RepeatMode.one ? Icons.repeat_one_rounded : Icons.repeat_rounded,
-                      color: r == RepeatMode.off ? Colors.white70 : accent),
+                  icon: Icon(r == PlaybackRepeatMode.one ? Icons.repeat_one_rounded : Icons.repeat_rounded,
+                      color: r == PlaybackRepeatMode.off ? Colors.white70 : accent),
                   onPressed: handler.cycleRepeat,
                 ),
               ),

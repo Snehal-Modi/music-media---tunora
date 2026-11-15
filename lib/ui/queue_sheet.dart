@@ -46,11 +46,11 @@ class QueueSheet extends StatelessWidget {
                         tooltip: 'Shuffle',
                       ),
                     ),
-                    ValueListenableBuilder<RepeatMode>(
+                    ValueListenableBuilder<PlaybackRepeatMode>(
                       valueListenable: handler.repeat,
                       builder: (c, r, _) => IconButton(
-                        icon: Icon(r == RepeatMode.one ? Icons.repeat_one_rounded : Icons.repeat_rounded,
-                            color: r == RepeatMode.off ? Colors.white70 : accent),
+                        icon: Icon(r == PlaybackRepeatMode.one ? Icons.repeat_one_rounded : Icons.repeat_rounded,
+                            color: r == PlaybackRepeatMode.off ? Colors.white70 : accent),
                         onPressed: handler.cycleRepeat,
                         tooltip: 'Repeat',
                       ),

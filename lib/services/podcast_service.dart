@@ -56,11 +56,15 @@ class PodcastService {
           .timeout(_timeout);
       if (r.statusCode != 200) return const [];
       final j = jsonDecode(r.body);
-      final entries = (j is Map ? (j['feed'] as Map?)?['entry'] : null) as List? ?? const [];
+      final feed = (j is Map && j['feed'] is Map) ? j['feed'] as Map : null;
+      final entries = (feed != null && feed['entry'] is List) ? feed['entry'] as List : const [];
       final ids = <String>[];
       for (final e in entries) {
-        final id = ((e as Map)['id'] as Map?)?['attributes']?['im:id'];
-        if (id != null) ids.add(id.toString());
+        if (e is Map && e['id'] is Map) {
+          final attrs = (e['id'] as Map)['attributes'];
+          final id = (attrs is Map) ? attrs['im:id'] : null;
+          if (id != null) ids.add(id.toString());
+        }
       }
       if (ids.isEmpty) return const [];
       // The chart has no feed urls; one lookup call fetches them all.
