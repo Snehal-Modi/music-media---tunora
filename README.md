@@ -49,7 +49,8 @@ Seamlessly play songs on your device alongside JioSaavn, YouTube, Audius, live r
    - **Music & Audio permission:** Required to find and display audio tracks stored on your device.
    - **Notification permission:** Required on Android 13+ to display media controls on the notification shade and lock screen.
 
-> **Note:** Updates can be installed directly over existing versions without losing your playlists, favorites, or downloaded songs.
+> [!NOTE]
+> **Testing Build:** Tunora is a standalone application with zero backend or database requirements. This build is signed with Android's standard debug certificate for direct device installation and testing (not Google Play distribution). If updating from an earlier build with a different signature, uninstall the previous version before installing the new build.
 
 ---
 
