@@ -225,8 +225,7 @@ class CollectionPage extends StatelessWidget {
 }
 
 class _TopBar extends StatelessWidget {
-  final String? title;
-  const _TopBar({this.title});
+  const _TopBar();
 
   @override
   Widget build(BuildContext context) {
@@ -235,7 +234,6 @@ class _TopBar extends StatelessWidget {
       child: Row(
         children: [
           GlassIconButton(icon: Icons.arrow_back_rounded, onPressed: () => Navigator.maybePop(context)),
-          if (title != null) ...[const SizedBox(width: 12), Text(title!, style: Theme.of(context).textTheme.titleLarge)],
         ],
       ),
     );
