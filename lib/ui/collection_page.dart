@@ -130,7 +130,7 @@ class CollectionPage extends StatelessWidget {
                     SizedBox(width: 340, child: SingleChildScrollView(child: header)),
                     Expanded(
                       child: CustomScrollView(slivers: [
-                        SliverToBoxAdapter(child: _TopBar(title: null)),
+                        const SliverToBoxAdapter(child: _TopBar()),
                         list,
                       ]),
                     ),
@@ -142,7 +142,7 @@ class CollectionPage extends StatelessWidget {
               bottom: false,
               child: CustomScrollView(
                 slivers: [
-                  SliverToBoxAdapter(child: _TopBar(title: null)),
+                  const SliverToBoxAdapter(child: _TopBar()),
                   SliverToBoxAdapter(child: header),
                   list,
                 ],

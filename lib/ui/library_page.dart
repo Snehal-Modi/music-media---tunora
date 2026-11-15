@@ -105,7 +105,7 @@ class _LibraryPageState extends State<LibraryPage> with SingleTickerProviderStat
             : 'Allow Tunora to read audio files on this phone.',
         action: Wrap(spacing: 8, children: [
           FilledButton(onPressed: () => lib.load(force: true), child: const Text('Allow')),
-          TextButton(onPressed: openAppSettings, child: const Text('Open settings')),
+          const TextButton(onPressed: openAppSettings, child: Text('Open settings')),
         ]),
       );
 
@@ -173,7 +173,7 @@ class _LibraryPageState extends State<LibraryPage> with SingleTickerProviderStat
         for (final e in active)
           ListTile(
             leading: const Icon(Icons.downloading_rounded),
-            title: Text('Downloading...', style: const TextStyle(fontWeight: FontWeight.w600)),
+            title: const Text('Downloading...', style: TextStyle(fontWeight: FontWeight.w600)),
             subtitle: LinearProgressIndicator(value: e.value == 0 ? null : e.value, minHeight: 4, borderRadius: BorderRadius.circular(2)),
           ),
         if (dl.downloads.isEmpty && active.isEmpty)

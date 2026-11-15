@@ -59,7 +59,7 @@ class LocalHome extends StatelessWidget {
                   : 'Allow access to audio files so your downloaded songs appear here.',
               action: Wrap(spacing: 8, alignment: WrapAlignment.center, children: [
                 FilledButton(onPressed: () => lib.load(force: true), child: const Text('Allow access')),
-                if (lib.permanentlyDenied) TextButton(onPressed: openAppSettings, child: const Text('Open settings')),
+                if (lib.permanentlyDenied) const TextButton(onPressed: openAppSettings, child: Text('Open settings')),
               ]),
             )
           else if (lib.songs.isEmpty && lib.loaded)

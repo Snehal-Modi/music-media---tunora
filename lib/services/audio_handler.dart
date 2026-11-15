@@ -673,7 +673,7 @@ class TunoraAudioHandler extends BaseAudioHandler with SeekHandler {
   }
 
   @override
-  Future<void> skipToQueueItem(int i) => _load(i);
+  Future<void> skipToQueueItem(int index) => _load(index);
 
   @override
   Future<void> setSpeed(double speed) => player.setSpeed(speed);
@@ -702,7 +702,7 @@ class TunoraAudioHandler extends BaseAudioHandler with SeekHandler {
   }
 
   @override
-  Future<void> removeQueueItemAt(int i) => removeAt(i);
+  Future<void> removeQueueItemAt(int index) => removeAt(index);
 
   @override
   Future<void> fastForward() => seekBy(const Duration(seconds: 10));
