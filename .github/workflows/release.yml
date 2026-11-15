@@ -20,6 +20,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Validate Release Tag
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
@@ -28,17 +33,20 @@ jobs:
               echo "::error ::Tag name must follow semantic versioning starting with 'v' (e.g. v1.3.0). Provided: $TAG"
               exit 1
             fi
+            echo "Release triggered via manual workflow_dispatch for tag: $TAG"
           else
             TAG="${{ github.ref_name }}"
+            echo "Release triggered via tag push: $TAG"
           fi
+
+          if git rev-parse -q --verify "refs/tags/$TAG" >/dev/null; then
+            echo "Git tag $TAG exists in repository history."
+          else
+            echo "Git tag $TAG does not exist yet; it will be created by GitHub Release upon publication."
+          fi
+
           echo "RELEASE_TAG=$TAG" >> $GITHUB_ENV
           echo "Target Release Tag: $TAG"
-
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ env.RELEASE_TAG }}
-          fetch-depth: 0
 
       - name: Setup Java 17
         uses: actions/setup-java@v5
@@ -95,13 +103,16 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      - name: Analyze project
+        run: flutter analyze --no-fatal-infos --no-fatal-warnings
+
       - name: Run unit & widget tests
         run: flutter test
 
       - name: Build Signed Release APK
         run: flutter build apk --release
 
-      - name: Verify APK Signing Certificate
+      - name: Verify APK Signing Certificate and Integrity
         run: |
           APK_PATH="build/app/outputs/flutter-apk/app-release.apk"
           if [ ! -f "$APK_PATH" ]; then
@@ -109,25 +120,60 @@ jobs:
             exit 1
           fi
 
+          APK_SIZE=$(stat -c%s "$APK_PATH" 2>/dev/null || wc -c < "$APK_PATH")
+          if [ "$APK_SIZE" -le 1000000 ]; then
+            echo "::error ::APK file size is abnormally small ($APK_SIZE bytes). Build may be corrupted."
+            exit 1
+          fi
+          echo "Verified APK size: $APK_SIZE bytes"
+
           APKSIGNER=$(find "$ANDROID_HOME/build-tools" -name apksigner 2>/dev/null | sort -V | tail -n 1)
           if [ -n "$APKSIGNER" ]; then
             echo "Verifying cryptographic signature with $APKSIGNER..."
-            $APKSIGNER verify --verbose --print-certs "$APK_PATH"
+            $APKSIGNER verify --verbose --print-certs "$APK_PATH" > cert_info.txt 2>&1 || {
+              cat cert_info.txt
+              echo "::error ::APK signature verification failed!"
+              exit 1
+            }
+            cat cert_info.txt
+            if grep -qi "Android Debug" cert_info.txt; then
+              echo "::error ::APK is signed with debug certificate! Release publication aborted."
+              exit 1
+            fi
+            if ! grep -q "Verified using v[123]" cert_info.txt; then
+              echo "::error ::APK is not properly signed with Android signature scheme."
+              exit 1
+            fi
+            rm -f cert_info.txt
           else
-            echo "apksigner tool not found; verifying with keytool..."
-            keytool -printcert -jarfile "$APK_PATH"
+            echo "apksigner not found; fallback to keytool check..."
+            keytool -printcert -jarfile "$APK_PATH" > cert_info.txt 2>&1 || {
+              cat cert_info.txt
+              echo "::error ::JAR signature verification failed!"
+              exit 1
+            }
+            cat cert_info.txt
+            if grep -qi "Android Debug" cert_info.txt; then
+              echo "::error ::APK is signed with debug certificate! Release publication aborted."
+              exit 1
+            fi
+            rm -f cert_info.txt
           fi
+          echo "APK signature and integrity verified successfully!"
 
       - name: Prepare Release Artifact
         run: |
           cp build/app/outputs/flutter-apk/app-release.apk Tunora.apk
           rm -f android/key.properties android/app/release.jks
+          echo "Removed temporary signing files."
+          ls -lh Tunora.apk
 
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           name: Tunora ${{ env.RELEASE_TAG }}
           tag_name: ${{ env.RELEASE_TAG }}
+          target_commitish: ${{ github.sha }}
           generate_release_notes: true
           draft: false
           prerelease: false
